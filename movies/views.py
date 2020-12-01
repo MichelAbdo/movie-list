@@ -1,7 +1,8 @@
 from django.shortcuts import render
-
-# Create your views here.
 from django.http import HttpResponse
+from .helper import Helper
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the movies index.")
+    helper = Helper()
+    movies_people_response = helper.get_movies_people()
+    return HttpResponse(movies_people_response)
