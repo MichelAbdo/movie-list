@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movies</title>
+</head>
+    <body>
+        <h1>Movies</h1>
+        {% if movies_people_list %}
+            <ol>
+            {% for movie in movies_people_list %}
+                <li>
+                    <h2>{{ movie.title }}</h2>
+                    <p>{{ movie.description }}</p>
+                    {% if movie.people %}
+                        <h3>People:</h3>
+                        <ol>
+                        {% for person in movie.people %}
+                            <li>
+                                <h4>{{ person.name }}</h4>
+                            </li>
+                        {% endfor %}
+                        </ol>
+                    {% endif %}
+                </li>
+            {% endfor %}
+            </ol>
+        {% else %}
+            <p>No movies are available.</p>
+        {% endif %}
+    </body>
+</html>
