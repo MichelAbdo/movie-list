@@ -1,5 +1,6 @@
 import requests
 from requests.exceptions import HTTPError
+from django.core.cache import cache
 
 class Helper:
 
@@ -62,6 +63,12 @@ class Helper:
         return self.movies
 
     def get_movies_people(self) -> list:
-        self.get_movies()
-        self.get_people()
-        return self.map_people_to_movies()
+        movies_with_people = cache.get('movies_with_people')
+        if movies_with_people is None:
+            self.get_movies()
+            self.get_people()
+            movies_with_people = self.map_people_to_movies()
+            # use cache versioning instead of expiry
+            cache.set('movies_with_people', movies_with_people, 60)
+
+        return movies_with_people
