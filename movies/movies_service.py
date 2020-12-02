@@ -1,30 +1,46 @@
 from django.core.cache import cache
 from .helper import Helper
+from .people_service import PeopleService
+
 
 class MoviesService:
-    # define env variables
-    movies_url = "https://ghibliapi.herokuapp.com/films"
-    people_url = "https://ghibliapi.herokuapp.com/people"
-    url_not_found = "https://ghibliapi.herokuapp.com/404"
+    """
+    Class Containing Movie related functions
+    """
 
-    movies = []
-    # _helper = Helper()
+    # @todo: Define env variables
+    movies_url = "https://ghibliapi.herokuapp.com/films"
+    people: list
+    movies: list
+    people_service: None
 
     def __init__(self):
-        self._helper = Helper()
+        """
+        Class constructor
+        """
+        self.people_service = PeopleService()
 
     def get_movies(self) -> list:
-        self.movies = self._helper.make_request(self.movies_url)
+        """
+        Get movies through an api call
+        :return: list
+        @rtype: list
+        """
+        self.movies = Helper.make_request(self.movies_url)
         return self.movies
 
-    def get_people(self) -> list:
-        self.people = self._helper.make_request(self.people_url)
-        return self.people
-
-    def map_people_to_movies(self) -> list:
-        # get people per movie and fill them in a dict having the movie id as key
+    @staticmethod
+    def map_people_to_movies(movies, people) -> list:
+        """
+        For each movie add its related people
+        :param movies: list of movies
+        :param people: list of people
+        :return: list of movies with their people
+        @rtype: list
+        """
+        # Get people per movie and fill them in a dict having the movie id as key
         movie_people = {}
-        for person in self.people:
+        for person in people:
             for movie in person['films']:
                 movie_id = movie.rsplit('/', 1)[-1]
                 if movie_id in movie_people:
@@ -32,22 +48,27 @@ class MoviesService:
                 else:
                     movie_people[movie_id] = [person]
 
-        # for each movie, set its people
-        for movie in self.movies:
+        # For each movie, set its people
+        for movie in movies:
             movie_id = movie.get('id')
             if movie_id in movie_people:
                 movie['people'] = movie_people[movie_id]
             else:
                 movie['people'] = []
 
-        return self.movies
+        return movies
 
     def get_movies_people(self) -> list:
+        """
+        Return a movie with its people.
+        Cache the results for 60 seconds
+        :return: list of movies with their people
+        @rtype: list
+        """
         movies_with_people = cache.get('movies_with_people')
         if movies_with_people is None:
-            self.get_movies()
-            self.get_people()
-            movies_with_people = self.map_people_to_movies()
+            movies_with_people = self.map_people_to_movies(self.get_movies(),
+                                                           self.people_service.get_people())
             # use cache versioning instead of expiry
             # https://docs.djangoproject.com/en/3.1/topics/cache/#cache-versioning
             # Schedule task to update cache

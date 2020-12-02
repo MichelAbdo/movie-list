@@ -3,13 +3,21 @@ from requests.exceptions import HTTPError
 
 
 class Helper:
+    """
+    Class containing helper functions
+    """
 
-    def make_request(self, url,
-                     method='GET', query_params=None,
-                     body=None) -> list:
+    @staticmethod
+    def make_request(url, method='GET',
+                     query_params=None, body=None) -> list:
         """
-        @todo document all methods
-        @type body: object
+        Make an api call to the provided URL with the sent params
+        :param url: API Endpoint
+        :param method: Method, default value is GET
+        :param query_params: Query Params, default is None
+        :param body: Request body, default is None
+        :return: list
+        @rtype: list
         """
         try:
             response = requests.request(
