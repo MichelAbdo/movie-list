@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.core.cache import cache
 from ..movies_service import MoviesService
 import httpretty
+import asyncio
 
 
 class TestViews(SimpleTestCase):
@@ -31,8 +32,7 @@ class TestViews(SimpleTestCase):
         response = self.client.get(reverse('index'))
         self.assertTemplateUsed(response, 'movies/index.html')
         self.assertContains(response, "Movies")
-        cached_movies_with_people = cache.get('movies_people_list')
-        self.assertEqual(self.movies, cached_movies_with_people)
+        self.assertEqual(self.movies, cache.get('movies_people_list'))
 
     def test_get_movies_people_get_cache_getting(self):
         """
@@ -56,10 +56,19 @@ class TestViews(SimpleTestCase):
 
     def test_get_movies_people_cache_expiry(self):
         """
-        Tests that movie people is being cached
+        Tests that the cache is expiring
         """
-        # cache.touch('a', 10)
-        # print('***************************************')
-        # print(cache._expire_info.get('movies_people_list'))
-        # print('***************************************')
-        # cache_expire_time.seconds
+        self.client.get(reverse('index'))
+        # Double check the cache is set
+        self.assertEqual(self.movies, cache.get('movies_people_list'))
+        # Set a new expiration for the key
+        cache.touch('movies_people_list', 1)
+        # Wait 2 seconds then get the key from the cache
+        async def display(self):
+            await asyncio.sleep(2)
+            self.assertEqual(None, cache.get('movies_people_list'))
+        asyncio.run(display(self))
+
+        # Double check that the cache was set on page load
+        self.client.get(reverse('index'))
+        self.assertEqual(self.movies, cache.get('movies_people_list'))
