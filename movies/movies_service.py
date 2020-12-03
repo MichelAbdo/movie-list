@@ -23,14 +23,14 @@ class MoviesService:
     def get_movies(self) -> list:
         """
         Get movies through an api call
-        :return: list
+        @return: list
         @rtype: list
         """
-        self.movies = Helper.make_request(self.movies_url)
+        self.movies = Helper.make_request(self.movies_url).json()
         return self.movies
 
     @staticmethod
-    def map_people_to_movies(movies, people) -> list:
+    def map_people_to_movies(movies: list, people: list) -> list:
         """
         For each movie add its related people
         :param movies: list of movies
@@ -65,15 +65,10 @@ class MoviesService:
         :return: list of movies with their people
         @rtype: list
         """
-        movies_with_people = cache.get('movies_with_people')
+        movies_with_people: list = cache.get('movies_with_people')
         if movies_with_people is None:
             movies_with_people = self.map_people_to_movies(self.get_movies(),
                                                            self.people_service.get_people())
-            # use cache versioning instead of expiry
-            # https://docs.djangoproject.com/en/3.1/topics/cache/#cache-versioning
-            # Schedule task to update cache
-            # https://codeinthehole.com/projects/cacheback-asynchronous-cache-refreshing-for-django/
-            # https://django.cowhite.com/blog/scheduling-taks-in-django/
             cache.set('movies_with_people', movies_with_people, 60)
 
         return movies_with_people

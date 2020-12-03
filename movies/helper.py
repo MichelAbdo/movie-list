@@ -1,5 +1,6 @@
 import requests
 from requests.exceptions import HTTPError
+from requests.models import Response
 
 
 class Helper:
@@ -16,20 +17,18 @@ class Helper:
         :param method: Method, default value is GET
         :param query_params: Query Params, default is None
         :param body: Request body, default is None
-        :return: list
-        @rtype: list
+        @return: Response
+        @rtype: Response
         """
         try:
-            response = requests.request(
+            response: Response = requests.request(
                 method,
                 url,
                 params=query_params,
                 json=body)
             response.raise_for_status()
-            return response.json()
+            return response
         except HTTPError as http_err:
-            print(f'HTTP error occurred: {http_err}')
-            return "An HTTP error occurred"
+            return http_err.response
         except Exception as err:
-            print(f'Other error occurred: {err}')
-            return "An Error occurred"
+            return err.response

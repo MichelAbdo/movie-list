@@ -16,5 +16,5 @@ class PeopleService:
         :return: list
         @rtype: list
         """
-        self.people = Helper.make_request(self.people_url)
+        self.people = Helper.make_request(self.people_url).json()
         return self.people
