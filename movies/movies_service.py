@@ -1,4 +1,3 @@
-from django.core.cache import cache
 from .helper import Helper
 from .people_service import PeopleService
 
@@ -29,15 +28,15 @@ class MoviesService:
         self.movies = Helper.make_request(self.movies_url).json()
         return self.movies
 
-    @staticmethod
-    def map_people_to_movies(movies: list, people: list) -> list:
+    def get_movies_people(self) -> list:
         """
+        Return movies with their people.
         For each movie add its related people
-        :param movies: list of movies
-        :param people: list of people
         :return: list of movies with their people
         @rtype: list
         """
+        movies = self.get_movies()
+        people = self.people_service.get_people()
         # Get people per movie and fill them in a dict having the movie id as key
         movie_people = {}
         for person in people:
@@ -57,18 +56,3 @@ class MoviesService:
                 movie['people'] = []
 
         return movies
-
-    def get_movies_people(self) -> list:
-        """
-        Return a movie with its people.
-        Cache the results for 60 seconds
-        :return: list of movies with their people
-        @rtype: list
-        """
-        movies_with_people: list = cache.get('movies_with_people')
-        if movies_with_people is None:
-            movies_with_people = self.map_people_to_movies(self.get_movies(),
-                                                           self.people_service.get_people())
-            cache.set('movies_with_people', movies_with_people, 60)
-
-        return movies_with_people

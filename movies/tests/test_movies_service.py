@@ -1,7 +1,5 @@
 from django.test import SimpleTestCase
-from django.core.cache import cache
 from ..movies_service import MoviesService
-from ..people_service import PeopleService
 
 
 class TestMoviesService(SimpleTestCase):
@@ -16,7 +14,6 @@ class TestMoviesService(SimpleTestCase):
         """
         Tests that get_movies returns a valid Movie object
         """
-        # movies = MoviesService().get_movies()
         movie_keys: set[str] = {'id', 'title',
                                 'description', 'director',
                                 'producer', 'release_date',
@@ -30,8 +27,7 @@ class TestMoviesService(SimpleTestCase):
         Tests that map_people_to_movies returns a valid Movie object
         with a valid people object in it
         """
-        people = PeopleService().get_people()
-        movies = MoviesService().map_people_to_movies(self.movies, people)
+        movies = MoviesService().get_movies_people()
         movie_keys: set[str] = {'id', 'title',
                                 'description', 'director',
                                 'producer', 'release_date',
@@ -53,32 +49,3 @@ class TestMoviesService(SimpleTestCase):
                 break
 
         self.assertEqual(people_object_is_valid, True)
-
-    def test_get_movies_people_cache_setting(self):
-        """
-        Tests that movie people is being cached
-        """
-        # clear cache
-        cache.delete('movies_with_people')
-        movies = MoviesService().get_movies_people()
-        cached_movies_with_people = cache.get('movies_with_people')
-        self.assertEqual(movies, cached_movies_with_people)
-
-    def test_get_movies_people_cache_getting(self):
-        """
-        Tests that movie people is being cached
-        """
-        # clear cache
-        # cache.delete('movies_with_people')
-        # movies = MoviesService().get_movies_people()
-        # cached_movies_with_people = cache.get('movies_with_people')
-        # self.assertEqual(movies, cached_movies_with_people)
-
-    def test_get_movies_people_cache_expiry(self):
-        """
-        Tests that movie people is being cached
-        """
-        # cache.touch('a', 10)
-        # movies = MoviesService().get_movies_people()
-        # cached_movies_with_people = cache.get('movies_with_people')
-        # self.assertEqual(movies, cached_movies_with_people)

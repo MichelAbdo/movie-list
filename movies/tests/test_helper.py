@@ -1,12 +1,6 @@
-from typing import Set, Any, Union
-
 from django.test import SimpleTestCase
 from ..helper import Helper
 
-# from .test_base import TestBase
-import requests
-import httpretty
-import json
 
 class TestHelper(SimpleTestCase):
     """

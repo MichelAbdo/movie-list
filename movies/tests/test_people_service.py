@@ -1,5 +1,3 @@
-from typing import Set
-
 from django.test import SimpleTestCase
 from ..people_service import PeopleService
 
